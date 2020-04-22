@@ -14,6 +14,11 @@
  * limitations under the License.
 */
 
+output "region" {
+  value       = var.region
+  description = "The region in wich regional resources resides (subnet, router, nat...)."
+}
+
 output "subnet_ids" {
   value       = aws_subnet.quortex[*].id
   description = "The IDs of the subnets"
