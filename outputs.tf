@@ -19,9 +19,14 @@ output "region" {
   description = "The region in wich regional resources resides (subnet, router, nat...)."
 }
 
-output "subnet_ids" {
-  value       = aws_subnet.quortex[*].id
+output "public_subnet_ids" {
+  value       = aws_subnet.quortex_public[*].id
   description = "The IDs of the subnets"
+}
+
+output "public_subnet_cidr_blocks" {
+  value       = aws_subnet.quortex_public[*].cidr_block
+  description = "The CIDR blocks of the subnets"
 }
 
 output "vpc_id" {

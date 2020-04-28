@@ -14,31 +14,44 @@
  * limitations under the License.
 */
 
+/**
+ * - The created subnets are public, but the recommended way would be to create both public and private subnets
+ * - AWS requires that at least 2 subnets in different AZ are created.
+ */
 
 # VPC
 resource "aws_vpc" "quortex" {
   cidr_block = "10.0.0.0/16"
 
 
-  tags = map(
-    "Name", "${var.name}",
-    "kubernetes.io/cluster/${var.name}", "shared",
+  tags = merge(
+    map(
+      "Name", "${var.name}",
+      "kubernetes.io/cluster/${var.name}", "shared", # tagged so that Kubernetes can discover it
+    ),
+    var.resource_labels
   )
   # NOTE: The usage of the specific kubernetes.io/cluster/* resource tags below are required for EKS and Kubernetes to discover and manage networking resources.
 }
 
+# Subnet (public)
+resource "aws_subnet" "quortex_public" {
+  count = length(var.availability_zones)
 
-# Subnet
-resource "aws_subnet" "quortex" {
-  count = 2
-
-  availability_zone = data.aws_availability_zones.available.names[count.index]
+  availability_zone = var.availability_zones[count.index]
   cidr_block        = "10.0.${count.index}.0/24"
   vpc_id            = aws_vpc.quortex.id
 
-  tags = map(
-    "Name", "${var.name}",
-    "kubernetes.io/cluster/${var.name}", "shared",
+  map_public_ip_on_launch = true
+
+  tags = merge(
+    map(
+      "Name", "${var.name}-public-az${count.index}",
+      "Public", "true",
+      "kubernetes.io/cluster/${var.name}", "shared",
+      "kubernetes.io/role/elb", "1" # tagged so that Kubernetes knows to use only those subnets for external load balancers
+    ),
+    var.resource_labels
   )
 }
 
@@ -47,9 +60,11 @@ resource "aws_subnet" "quortex" {
 resource "aws_internet_gateway" "quortex" {
   vpc_id = aws_vpc.quortex.id
 
-  tags = {
-    Name = "${var.name}",
-  }
+  tags = merge({
+      Name = "${var.name}",
+    },
+    var.resource_labels
+  )
 }
 
 # Route table
@@ -61,17 +76,19 @@ resource "aws_route_table" "quortex" {
     gateway_id = aws_internet_gateway.quortex.id
   }
 
-  tags = {
-    Name = "${var.name}",
-  }
+  tags = merge({
+      Name = "${var.name}",
+    },
+    var.resource_labels
+  )
 }
 
 
-# Route table association
-resource "aws_route_table_association" "quortex" {
-  count = 2
+# Route table association, for public subnets
+resource "aws_route_table_association" "quortex_public" {
+  count = length(var.availability_zones)
 
-  subnet_id      = aws_subnet.quortex.*.id[count.index]
+  subnet_id      = aws_subnet.quortex_public.*.id[count.index]
   route_table_id = aws_route_table.quortex.id
 }
 

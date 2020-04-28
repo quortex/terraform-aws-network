@@ -16,10 +16,21 @@
 
 variable "name" {
   type        = string
-  description = "This value will be in the Name tag of all network resources."
+  description = "This value will be in the Name tag of all network resources. Matches the EKS cluster name"
 }
 
 variable "region" {
   type        = string
   description = "The AWS region in wich to create network regional resources (subnet, router, nat...)."
+}
+
+variable "availability_zones" {
+  type        = list(string)
+  description = "The list of availability zones (AZ) for the subnets. Amazon EKS requires subnets in at least two Availability Zones"
+}
+
+variable "resource_labels" {
+  type        = map
+  description = "The labels (a map of key/value pairs) to be applied to created resources."
+  default     = {}
 }
