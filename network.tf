@@ -34,8 +34,8 @@ resource "aws_vpc" "quortex" {
   # NOTE: The usage of the specific kubernetes.io/cluster/* resource tags below are required for EKS and Kubernetes to discover and manage networking resources.
 }
 
-# Subnet (public)
-resource "aws_subnet" "quortex_public" {
+# Subnets (master) - public
+resource "aws_subnet" "quortex_master" {
   count = length(var.availability_zones)
 
   availability_zone = var.availability_zones[count.index]
@@ -46,7 +46,7 @@ resource "aws_subnet" "quortex_public" {
 
   tags = merge(
     map(
-      "Name", "${var.name}-public-az${count.index}",
+      "Name", "${var.name}-ms-az${count.index}",
       "Public", "true",
       "kubernetes.io/cluster/${var.name}", "shared",
       "kubernetes.io/role/elb", "1" # tagged so that Kubernetes knows to use only those subnets for external load balancers
@@ -55,6 +55,26 @@ resource "aws_subnet" "quortex_public" {
   )
 }
 
+# Subnet (worker) - public
+resource "aws_subnet" "quortex_worker" {
+  count = length(var.availability_zones)
+
+  availability_zone = var.availability_zones[count.index]
+  cidr_block        = "10.0.${10+count.index}.0/24"
+  vpc_id            = aws_vpc.quortex.id
+
+  map_public_ip_on_launch = true
+
+  tags = merge(
+    map(
+      "Name", "${var.name}-wk-az${count.index}",
+      "Public", "true",
+      "kubernetes.io/cluster/${var.name}", "shared",
+      "kubernetes.io/role/elb", "1" # tagged so that Kubernetes knows to use only those subnets for external load balancers
+    ),
+    var.resource_labels
+  )
+}
 
 # Internet Gateway
 resource "aws_internet_gateway" "quortex" {
@@ -84,11 +104,19 @@ resource "aws_route_table" "quortex" {
 }
 
 
-# Route table association, for public subnets
-resource "aws_route_table_association" "quortex_public" {
-  count = length(var.availability_zones)
+# Route table association
 
-  subnet_id      = aws_subnet.quortex_public.*.id[count.index]
+resource "aws_route_table_association" "quortex_master" {
+  count = length(aws_subnet.quortex_master)
+
+  subnet_id      = aws_subnet.quortex_master.*.id[count.index]
+  route_table_id = aws_route_table.quortex.id
+}
+
+resource "aws_route_table_association" "quortex_worker" {
+  count = length(aws_subnet.quortex_worker)
+
+  subnet_id      = aws_subnet.quortex_worker.*.id[count.index]
   route_table_id = aws_route_table.quortex.id
 }
 
