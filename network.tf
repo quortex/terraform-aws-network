@@ -29,7 +29,7 @@ resource "aws_vpc" "quortex" {
       "Name", "${var.name}",
       "kubernetes.io/cluster/${var.name}", "shared", # tagged so that Kubernetes can discover it
     ),
-    var.resource_labels
+    var.tags
   )
   # NOTE: The usage of the specific kubernetes.io/cluster/* resource tags below are required for EKS and Kubernetes to discover and manage networking resources.
 }
@@ -51,7 +51,7 @@ resource "aws_subnet" "quortex_master" {
       "kubernetes.io/cluster/${var.name}", "shared",
       "kubernetes.io/role/elb", "1" # tagged so that Kubernetes knows to use only those subnets for external load balancers
     ),
-    var.resource_labels
+    var.tags
   )
 }
 
@@ -72,7 +72,7 @@ resource "aws_subnet" "quortex_worker" {
       "kubernetes.io/cluster/${var.name}", "shared",
       "kubernetes.io/role/elb", "1" # tagged so that Kubernetes knows to use only those subnets for external load balancers
     ),
-    var.resource_labels
+    var.tags
   )
 }
 
@@ -83,7 +83,7 @@ resource "aws_internet_gateway" "quortex" {
   tags = merge({
     Name = "${var.name}",
     },
-    var.resource_labels
+    var.tags
   )
 }
 
@@ -99,7 +99,7 @@ resource "aws_route_table" "quortex" {
   tags = merge({
     Name = "${var.name}",
     },
-    var.resource_labels
+    var.tags
   )
 }
 
