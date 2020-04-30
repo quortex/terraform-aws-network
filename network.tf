@@ -60,7 +60,7 @@ resource "aws_subnet" "quortex_worker" {
   count = length(var.availability_zones)
 
   availability_zone = var.availability_zones[count.index]
-  cidr_block        = "10.0.${10+count.index}.0/24"
+  cidr_block        = "10.0.${10 + count.index}.0/24"
   vpc_id            = aws_vpc.quortex.id
 
   map_public_ip_on_launch = true
@@ -81,7 +81,7 @@ resource "aws_internet_gateway" "quortex" {
   vpc_id = aws_vpc.quortex.id
 
   tags = merge({
-      Name = "${var.name}",
+    Name = "${var.name}",
     },
     var.resource_labels
   )
@@ -97,7 +97,7 @@ resource "aws_route_table" "quortex" {
   }
 
   tags = merge({
-      Name = "${var.name}",
+    Name = "${var.name}",
     },
     var.resource_labels
   )
