@@ -29,8 +29,8 @@ variable "availability_zones" {
   description = "The list of availability zones (AZ) for the subnets. Amazon EKS requires subnets in at least two Availability Zones"
 }
 
-variable "resource_labels" {
+variable "tags" {
   type        = map
-  description = "The labels (a map of key/value pairs) to be applied to created resources."
+  description = "The tags (a map of key/value pairs) to be applied to created resources."
   default     = {}
 }
