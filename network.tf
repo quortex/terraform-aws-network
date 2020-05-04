@@ -21,8 +21,7 @@
 
 # VPC
 resource "aws_vpc" "quortex" {
-  cidr_block = "10.0.0.0/16"
-
+  cidr_block = var.cidr_block
 
   tags = merge(
     map(
@@ -39,7 +38,7 @@ resource "aws_subnet" "quortex_master" {
   count = length(var.availability_zones)
 
   availability_zone = var.availability_zones[count.index]
-  cidr_block        = "10.0.${count.index}.0/24"
+  cidr_block        = cidrsubnet(var.cidr_block, var.subnet_newbits, count.index)
   vpc_id            = aws_vpc.quortex.id
 
   map_public_ip_on_launch = true
@@ -60,7 +59,7 @@ resource "aws_subnet" "quortex_worker" {
   count = length(var.availability_zones)
 
   availability_zone = var.availability_zones[count.index]
-  cidr_block        = "10.0.${10 + count.index}.0/24"
+  cidr_block        = cidrsubnet(var.cidr_block, var.subnet_newbits, length(var.availability_zones)+count.index)
   vpc_id            = aws_vpc.quortex.id
 
   map_public_ip_on_launch = true
