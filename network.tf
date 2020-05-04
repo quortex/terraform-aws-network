@@ -21,12 +21,14 @@
 
 # VPC
 resource "aws_vpc" "quortex" {
+  # Note: name is not settable via Terraform
+
   cidr_block = var.cidr_block
 
   tags = merge(
     map(
-      "Name", "${var.name}",
-      "kubernetes.io/cluster/${var.name}", "shared", # tagged so that Kubernetes can discover it
+      "Name", "${var.vpc_name}",
+      "kubernetes.io/cluster/${var.cluster_name}", "shared", # tagged so that Kubernetes can discover it
     ),
     var.tags
   )
@@ -35,6 +37,7 @@ resource "aws_vpc" "quortex" {
 
 # Subnets (master) - public
 resource "aws_subnet" "quortex_master" {
+  # Note: name is not settable via Terraform
   count = length(var.availability_zones)
 
   availability_zone = var.availability_zones[count.index]
@@ -45,9 +48,9 @@ resource "aws_subnet" "quortex_master" {
 
   tags = merge(
     map(
-      "Name", "${var.name}-ms-az${count.index}",
+      "Name", "${var.subnet_name_prefix}ms-az${count.index}",
       "Public", "true",
-      "kubernetes.io/cluster/${var.name}", "shared",
+      "kubernetes.io/cluster/${var.cluster_name}", "shared",
       "kubernetes.io/role/elb", "1" # tagged so that Kubernetes knows to use only those subnets for external load balancers
     ),
     var.tags
@@ -56,19 +59,20 @@ resource "aws_subnet" "quortex_master" {
 
 # Subnet (worker) - public
 resource "aws_subnet" "quortex_worker" {
+  # Note: name is not settable via Terraform
   count = length(var.availability_zones)
 
   availability_zone = var.availability_zones[count.index]
-  cidr_block        = cidrsubnet(var.cidr_block, var.subnet_newbits, length(var.availability_zones)+count.index)
+  cidr_block        = cidrsubnet(var.cidr_block, var.subnet_newbits, length(var.availability_zones) + count.index)
   vpc_id            = aws_vpc.quortex.id
 
   map_public_ip_on_launch = true
 
   tags = merge(
     map(
-      "Name", "${var.name}-wk-az${count.index}",
+      "Name", "${var.subnet_name_prefix}wk-az${count.index}",
       "Public", "true",
-      "kubernetes.io/cluster/${var.name}", "shared",
+      "kubernetes.io/cluster/${var.cluster_name}", "shared",
       "kubernetes.io/role/elb", "1" # tagged so that Kubernetes knows to use only those subnets for external load balancers
     ),
     var.tags
@@ -77,10 +81,11 @@ resource "aws_subnet" "quortex_worker" {
 
 # Internet Gateway
 resource "aws_internet_gateway" "quortex" {
+  # Note: name is not settable via Terraform
   vpc_id = aws_vpc.quortex.id
 
   tags = merge({
-    Name = "${var.name}",
+    Name = "${var.gateway_name}",
     },
     var.tags
   )
@@ -96,7 +101,7 @@ resource "aws_route_table" "quortex" {
   }
 
   tags = merge({
-    Name = "${var.name}",
+    Name = "${var.route_table_name}",
     },
     var.tags
   )
