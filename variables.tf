@@ -29,6 +29,18 @@ variable "availability_zones" {
   description = "The list of availability zones (AZ) for the subnets. Amazon EKS requires subnets in at least two Availability Zones"
 }
 
+variable "cidr_block" {
+  type        = string
+  description = "The CIDR block for the VPC"
+  default     = "10.0.0.0/16"
+}
+
+variable "subnet_newbits" {
+  type        = number
+  description = "The number of bits to add to the VPC CIDR block for obtaining the subnet CIDR blocks"
+  default     = 8
+}
+
 variable "tags" {
   type        = map
   description = "The tags (a map of key/value pairs) to be applied to created resources."
