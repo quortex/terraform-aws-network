@@ -14,9 +14,33 @@
  * limitations under the License.
 */
 
-variable "name" {
+variable "vpc_name" {
   type        = string
-  description = "This value will be in the Name tag of all network resources. Matches the EKS cluster name"
+  description = "Name for the VPC resource. Will be in the Name tag of the VPC instead of the actual resource name, since the resource name cannot be set via Terraform."
+  default     = "quortex"
+}
+
+variable "cluster_name" {
+  type        = string
+  description = "The name of the EKS cluster. Will be used to set the kubernetes.io/cluster/<cluster-name> tag on the VPC and subnets. It is required for Kubernetes to discover them."
+}
+
+variable "subnet_name_prefix" {
+  type        = string
+  description = "A prefix for the name of the subnets."
+  default     = "quortex-"
+}
+
+variable "gateway_name" {
+  type        = string
+  description = "Name for the gateway resource"
+  default     = "quortex"
+}
+
+variable "route_table_name" {
+  type        = string
+  description = "Name for the route table resource"
+  default     = "quortex"
 }
 
 variable "region" {
