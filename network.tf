@@ -25,6 +25,9 @@ resource "aws_vpc" "quortex" {
 
   cidr_block = var.cidr_block
 
+  enable_dns_support   = true
+  enable_dns_hostnames = true # required for using the cluster's private endpoint
+
   tags = merge(
     map(
       "Name", "${var.vpc_name}",
