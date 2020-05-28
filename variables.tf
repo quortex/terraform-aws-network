@@ -65,6 +65,12 @@ variable "subnet_newbits" {
   default     = 8
 }
 
+variable "vpc_peering_routes" {
+  type        = list(object({ cidr_block=string, vpc_peering_connection_id=string }))
+  description = "Additional routes to add, for directing traffic to peered VPC."
+  default     = []
+}
+
 variable "tags" {
   type        = map
   description = "The tags (a map of key/value pairs) to be applied to created resources."
