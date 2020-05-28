@@ -103,6 +103,14 @@ resource "aws_route_table" "quortex" {
     gateway_id = aws_internet_gateway.quortex.id
   }
 
+  dynamic "route" {
+    for_each = var.vpc_peering_routes
+    content {
+      cidr_block = route.value.cidr_block
+      vpc_peering_connection_id = route.value.vpc_peering_connection_id
+    }
+  }
+
   tags = merge({
     Name = "${var.route_table_name}",
     },
