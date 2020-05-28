@@ -43,3 +43,13 @@ output "vpc_id" {
   value       = aws_vpc.quortex.id
   description = "The ID of the VPC"
 }
+
+output "vpc_cidr_block" {
+  value       = var.cidr_block
+  description = "The CIDR block of the VPC"
+}
+
+output "route_table_id" {
+  value       = aws_route_table.quortex.id
+  description = "The ID of the route table for subnets"
+}
