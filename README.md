@@ -18,8 +18,8 @@ Get all our terraform modules on [Terraform Registry][registry_tf_modules] or on
 This module creates the following resources in AWS:
 
 - a dedicated VPC
-- 2 or more subnets (public) with CIDR 10.0.0.0/24, 10.0.1.0/24... in different AZ, for the master nodes
-- 1 or more subnets with CIDR 10.0.10.0/24, 10.0.11.0/24, ... in different AZ, for the worker nodes
+- 2 or more subnets (public) in different AZ, for the master nodes
+- 1 or more subnets in different AZ, for the worker nodes
 - an internet gateway and a route table, for reaching the internet from inside the subnet
 
 
@@ -29,9 +29,10 @@ This module creates the following resources in AWS:
 module "network" {
   source = "git::https://github.com/quortex/terraform-aws-network.git"
 
-  region = "eu-west-3"
-  name = "quortexcluster"
-
+  region             = "eu-west-3"
+  name               = "quortexcluster"
+  cidr_block         = "10.0.0.0/16"
+  subnet_newbits     = 8
   availability_zones = ["eu-west-3a", "eu-west-3c"]
 }
 

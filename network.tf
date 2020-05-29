@@ -21,8 +21,6 @@
 
 # VPC
 resource "aws_vpc" "quortex" {
-  # Note: name is not settable via Terraform
-
   cidr_block = var.cidr_block
 
   enable_dns_support   = true
@@ -40,7 +38,6 @@ resource "aws_vpc" "quortex" {
 
 # Subnets (master) - public
 resource "aws_subnet" "quortex_master" {
-  # Note: name is not settable via Terraform
   count = length(var.availability_zones)
 
   availability_zone = var.availability_zones[count.index]
@@ -62,7 +59,6 @@ resource "aws_subnet" "quortex_master" {
 
 # Subnet (worker) - public
 resource "aws_subnet" "quortex_worker" {
-  # Note: name is not settable via Terraform
   count = length(var.availability_zones)
 
   availability_zone = var.availability_zones[count.index]
@@ -84,7 +80,6 @@ resource "aws_subnet" "quortex_worker" {
 
 # Internet Gateway
 resource "aws_internet_gateway" "quortex" {
-  # Note: name is not settable via Terraform
   vpc_id = aws_vpc.quortex.id
 
   tags = merge({
@@ -103,6 +98,7 @@ resource "aws_route_table" "quortex" {
     gateway_id = aws_internet_gateway.quortex.id
   }
 
+  # Additional route(s) to peered VPC
   dynamic "route" {
     for_each = var.vpc_peering_routes
     content {
