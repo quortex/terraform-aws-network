@@ -27,7 +27,7 @@ This module creates the following resources in AWS:
 
 ```
 module "network" {
-  source = "git::https://github.com/quortex/terraform-aws-network.git"
+  source = "quortex/network/aws"
 
   region             = "eu-west-3"
   name               = "quortexcluster"
