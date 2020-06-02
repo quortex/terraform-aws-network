@@ -9,7 +9,7 @@ It provides a set of resources necessary to provision the Kubernetes cluster of 
 
 ![infra_diagram]
 
-This module is available on [Terraform Registry][registry_tf_aws-eks_cluster].
+This module is available on [Terraform Registry][registry_tf_aws-network].
 
 Get all our terraform modules on [Terraform Registry][registry_tf_modules] or on [Github][github_tf_modules] !
 
@@ -46,8 +46,6 @@ This project is part of our terraform modules to provision a Quortex infrastruct
 
 Check out these related projects.
 
-- [terraform-aws-network][registry_tf_aws-eks_network] - A terraform module for Quortex infrastructure network layer.
-
 - [terraform-aws-eks-cluster][registry_tf_aws-eks_cluster] - A terraform module for Quortex infrastructure AWS cluster layer.
 
 - [terraform-aws-eks-load-balancer][registry_tf_aws-eks_load_balancer] - A terraform module for Quortex infrastructure AWS load balancing layer.
@@ -58,7 +56,7 @@ Check out these related projects.
 
 **Got a question?**
 
-File a GitHub [issue](https://github.com/quortex/terraform-aws-eks-storage/issues) or send us an [email][email].
+File a GitHub [issue](https://github.com/quortex/terraform-aws-network/issues) or send us an [email][email].
 
 
   [logo]: https://storage.googleapis.com/quortex-assets/logo.webp
@@ -67,8 +65,8 @@ File a GitHub [issue](https://github.com/quortex/terraform-aws-eks-storage/issue
   [email]: mailto:info@quortex.io
 
   [registry_tf_modules]: https://registry.terraform.io/modules/quortex
-  [registry_tf_aws-eks_network]: https://registry.terraform.io/modules/quortex/network/aws-eks
-  [registry_tf_aws-eks_cluster]: https://registry.terraform.io/modules/quortex/eks-cluster/aws-eks
-  [registry_tf_aws-eks_load_balancer]: https://registry.terraform.io/modules/quortex/load-balancer/aws-eks
-  [registry_tf_aws-eks_storage]: https://registry.terraform.io/modules/quortex/storage/aws-eks
+  [registry_tf_aws-eks_network]: https://registry.terraform.io/modules/quortex/network/aws
+  [registry_tf_aws-eks_cluster]: https://registry.terraform.io/modules/quortex/eks-cluster/aws
+  [registry_tf_aws-eks_load_balancer]: https://registry.terraform.io/modules/quortex/load-balancer/aws
+  [registry_tf_aws-eks_storage]: https://registry.terraform.io/modules/quortex/storage/aws
   [github_tf_modules]: https://github.com/quortex?q=terraform-
