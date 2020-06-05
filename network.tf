@@ -21,7 +21,7 @@
 
 # VPC
 resource "aws_vpc" "quortex" {
-  cidr_block = var.cidr_block
+  cidr_block = var.vpc_cidr_block
 
   enable_dns_support   = true
   enable_dns_hostnames = true # required for using the cluster's private endpoint
@@ -38,10 +38,10 @@ resource "aws_vpc" "quortex" {
 
 # Subnets (master) - public
 resource "aws_subnet" "quortex_master" {
-  count = length(var.availability_zones)
+  count = length(var.subnets_master)
 
-  availability_zone = var.availability_zones[count.index]
-  cidr_block        = cidrsubnet(var.cidr_block, var.subnet_newbits, count.index)
+  availability_zone = var.subnets_master[count.index].availability_zone
+  cidr_block        = var.subnets_master[count.index].cidr != "" ? var.subnets_master[count.index].cidr : cidrsubnet(var.vpc_cidr_block, var.subnet_newbits, count.index)
   vpc_id            = aws_vpc.quortex.id
 
   map_public_ip_on_launch = true
@@ -59,10 +59,10 @@ resource "aws_subnet" "quortex_master" {
 
 # Subnet (worker) - public
 resource "aws_subnet" "quortex_worker" {
-  count = length(var.availability_zones)
+  count = length(var.subnets_worker)
 
-  availability_zone = var.availability_zones[count.index]
-  cidr_block        = cidrsubnet(var.cidr_block, var.subnet_newbits, length(var.availability_zones) + count.index)
+  availability_zone = var.subnets_worker[count.index].availability_zone
+  cidr_block        = var.subnets_worker[count.index].cidr != "" ? var.subnets_worker[count.index].cidr : cidrsubnet(var.vpc_cidr_block, var.subnet_newbits, length(var.subnets_master) + count.index)
   vpc_id            = aws_vpc.quortex.id
 
   map_public_ip_on_launch = true
@@ -102,7 +102,7 @@ resource "aws_route_table" "quortex" {
   dynamic "route" {
     for_each = var.vpc_peering_routes
     content {
-      cidr_block = route.value.cidr_block
+      cidr_block                = route.value.cidr_block
       vpc_peering_connection_id = route.value.vpc_peering_connection_id
     }
   }

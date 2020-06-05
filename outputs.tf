@@ -45,7 +45,7 @@ output "vpc_id" {
 }
 
 output "vpc_cidr_block" {
-  value       = var.cidr_block
+  value       = var.vpc_cidr_block
   description = "The CIDR block of the VPC"
 }
 
