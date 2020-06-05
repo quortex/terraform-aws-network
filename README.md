@@ -31,9 +31,24 @@ module "network" {
 
   region             = "eu-west-3"
   name               = "quortexcluster"
-  cidr_block         = "10.0.0.0/16"
+  vpc_cidr_block     = "10.0.0.0/16"
   subnet_newbits     = 8
-  availability_zones = ["eu-west-3a", "eu-west-3c"]
+  subnets_master = [
+    {
+      availability_zone = "eu-west-3b"
+      cidr              = "" # let the module define the subnets CIDR
+    },
+    {
+      availability_zone = "eu-west-3c"
+      cidr              = ""
+    }
+  ]
+  subnets_worker = [
+    {
+      availability_zone = "eu-west-3b"
+      cidr              = ""
+    }
+  ]
 }
 
 ```
