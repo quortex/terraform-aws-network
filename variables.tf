@@ -43,6 +43,18 @@ variable "route_table_name" {
   default     = "quortex"
 }
 
+variable "nat_gw_name" {
+  type        = string
+  description = "Name for the NAT gateway resource"
+  default     = "quortex"
+}
+
+variable "eip_name" {
+  type        = string
+  description = "Name for the Elastic IP resource"
+  default     = "quortex"
+}
+
 variable "region" {
   type        = string
   description = "The AWS region in wich to create network regional resources (subnet, router, nat...)."
@@ -80,4 +92,16 @@ variable "tags" {
   type        = map
   description = "The tags (a map of key/value pairs) to be applied to created resources."
   default     = {}
+}
+
+variable "enable_nat_gateway" {
+  type        = bool
+  description = "Set to true if a NAT Gateway and Elastic IP should be created"
+  default     = false
+}
+
+variable "single_nat_gateway" {
+  type        = bool
+  description = "Set to true if a common NAT Gateway should be used for all subnets"
+  default     = true
 }

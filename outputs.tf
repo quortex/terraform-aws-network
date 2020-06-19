@@ -49,7 +49,17 @@ output "vpc_cidr_block" {
   description = "The CIDR block of the VPC"
 }
 
-output "route_table_id" {
-  value       = aws_route_table.quortex.id
-  description = "The ID of the route table for subnets"
+output "route_table_ids_master" {
+  value       = aws_route_table.quortex_master.*.id
+  description = "The IDs of the route tables for master subnets"
+}
+
+output "route_table_ids_worker" {
+  value       = aws_route_table.quortex_worker.*.id
+  description = "The IDs of the route tables for worker subnets"
+}
+
+output "nat_eip" {
+  value       = aws_eip.quortex.id
+  description = "The static Elastic IP created for Quortex cluster External NAT Gateway IP."
 }

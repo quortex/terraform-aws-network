@@ -22,6 +22,11 @@ This module creates the following resources in AWS:
 - 1 or more subnets in different AZ, for the worker nodes
 - an internet gateway and a route table, for reaching the internet from inside the subnet
 
+If NAT gateway is enabled (useful for external SRT gateway access): 
+- an Elastic IP
+- a NAT gateway
+
+Note: for now, 1 single NAT gateway is created in the 1st AZ. If more are required for High Availability, this module will be updated.
 
 ## Usage example
 
@@ -49,6 +54,7 @@ module "network" {
       cidr              = ""
     }
   ]
+  enable_nat_gateway = true
 }
 
 ```

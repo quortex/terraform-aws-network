@@ -89,13 +89,45 @@ resource "aws_internet_gateway" "quortex" {
   )
 }
 
-# Route table
-resource "aws_route_table" "quortex" {
+# Subnet route table (master subnets)
+resource "aws_route_table" "quortex_master" {
+  count = length(aws_subnet.quortex_master)
+
   vpc_id = aws_vpc.quortex.id
 
   route {
     cidr_block = "0.0.0.0/0"
     gateway_id = aws_internet_gateway.quortex.id
+  }
+
+  tags = merge({Name = "${var.route_table_name}-ms${count.index}",},var.tags)
+}
+
+
+# Subnet route table (worker subnets)
+resource "aws_route_table" "quortex_worker" {
+  count = length(aws_subnet.quortex_worker)
+
+  vpc_id = aws_vpc.quortex.id
+
+  # Route to the NAT, if NAT is enabled...
+  dynamic "route" {
+    for_each = var.enable_nat_gateway ? [1] : []
+    
+    content {
+      cidr_block     = "0.0.0.0/0"
+      nat_gateway_id = aws_nat_gateway.quortex[var.single_nat_gateway?0:count.index].id
+    }
+  }
+
+  # ...otherwise, route to the Internet Gateway
+  dynamic "route" {
+    for_each = var.enable_nat_gateway ? [] : [1]
+    
+    content {
+      cidr_block = "0.0.0.0/0"
+      gateway_id = aws_internet_gateway.quortex.id
+    }
   }
 
   # Additional route(s) to peered VPC
@@ -107,11 +139,7 @@ resource "aws_route_table" "quortex" {
     }
   }
 
-  tags = merge({
-    Name = "${var.route_table_name}",
-    },
-    var.tags
-  )
+  tags = merge({Name = "${var.route_table_name}-wk${count.index}",},var.tags)
 }
 
 
@@ -121,14 +149,14 @@ resource "aws_route_table_association" "quortex_master" {
   count = length(aws_subnet.quortex_master)
 
   subnet_id      = aws_subnet.quortex_master.*.id[count.index]
-  route_table_id = aws_route_table.quortex.id
+  route_table_id = aws_route_table.quortex_master[count.index].id
 }
 
 resource "aws_route_table_association" "quortex_worker" {
   count = length(aws_subnet.quortex_worker)
 
   subnet_id      = aws_subnet.quortex_worker.*.id[count.index]
-  route_table_id = aws_route_table.quortex.id
+  route_table_id = aws_route_table.quortex_worker[count.index].id
 }
 
 
