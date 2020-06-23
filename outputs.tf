@@ -19,24 +19,24 @@ output "region" {
   description = "The region in wich regional resources resides (subnet, router, nat...)."
 }
 
-output "master_subnet_ids" {
-  value       = aws_subnet.quortex_master[*].id
-  description = "The IDs of the subnets, for the master nodes"
+output "public_subnet_ids" {
+  value       = aws_subnet.quortex_public[*].id
+  description = "The IDs of the public subnets"
 }
 
-output "master_subnet_cidr_blocks" {
-  value       = aws_subnet.quortex_master[*].cidr_block
-  description = "The CIDR blocks of the subnets, for the master nodes"
+output "public_subnet_cidr_blocks" {
+  value       = aws_subnet.quortex_public[*].cidr_block
+  description = "The CIDR blocks of the public subnets"
 }
 
-output "worker_subnet_ids" {
-  value       = aws_subnet.quortex_worker[*].id
-  description = "The IDs of the subnets, for the worker nodes"
+output "private_subnet_ids" {
+  value       = aws_subnet.quortex_private[*].id
+  description = "The IDs of the private subnets"
 }
 
-output "worker_subnet_cidr_blocks" {
-  value       = aws_subnet.quortex_worker[*].cidr_block
-  description = "The CIDR blocks of the subnets, for the worker nodes"
+output "private_subnet_cidr_blocks" {
+  value       = aws_subnet.quortex_private[*].cidr_block
+  description = "The CIDR blocks of the private subnets"
 }
 
 output "vpc_id" {
@@ -49,7 +49,17 @@ output "vpc_cidr_block" {
   description = "The CIDR block of the VPC"
 }
 
-output "route_table_id" {
-  value       = aws_route_table.quortex.id
-  description = "The ID of the route table for subnets"
+output "route_table_ids_public" {
+  value       = aws_route_table.quortex_public.*.id
+  description = "The IDs of the route tables for public subnets"
+}
+
+output "route_table_ids_private" {
+  value       = aws_route_table.quortex_private.*.id
+  description = "The IDs of the route tables for private subnets"
+}
+
+output "nat_eip" {
+  value       = aws_eip.quortex.id
+  description = "The static Elastic IP created for Quortex cluster External NAT Gateway IP."
 }
