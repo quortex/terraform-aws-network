@@ -18,10 +18,15 @@ Get all our terraform modules on [Terraform Registry][registry_tf_modules] or on
 This module creates the following resources in AWS:
 
 - a dedicated VPC
-- 2 or more subnets (public) in different AZ, for the master nodes
-- 1 or more subnets in different AZ, for the worker nodes
-- an internet gateway and a route table, for reaching the internet from inside the subnet
+- 2 or more public subnets in different AZ
+- 2 or more private subnets in different AZ
+- an internet gateway
+- route tables
 
+In addition, if NAT gateway is enabled:
+
+- an Elastic IP
+- a NAT gateway in one of the public subnets
 
 ## Usage example
 
@@ -31,9 +36,29 @@ module "network" {
 
   region             = "eu-west-3"
   name               = "quortexcluster"
-  cidr_block         = "10.0.0.0/16"
+  vpc_cidr_block     = "10.0.0.0/16"
   subnet_newbits     = 8
-  availability_zones = ["eu-west-3a", "eu-west-3c"]
+  subnets_public = [
+    {
+      availability_zone = "eu-west-3b"
+      cidr              = "" # let the module define the subnets CIDR
+    },
+    {
+      availability_zone = "eu-west-3c"
+      cidr              = ""
+    }
+  ]
+  subnets_private = [
+    {
+      availability_zone = "eu-west-3b"
+      cidr              = ""
+    },
+    {
+      availability_zone = "eu-west-3c"
+      cidr              = ""
+    }
+  ]
+  enable_nat_gateway = true
 }
 
 ```
@@ -60,7 +85,7 @@ File a GitHub [issue](https://github.com/quortex/terraform-aws-network/issues) o
 
 
   [logo]: https://storage.googleapis.com/quortex-assets/logo.webp
-  [infra_diagram]: https://storage.googleapis.com/quortex-assets/infra_aws_001.jpg
+  [infra_diagram]: https://storage.googleapis.com/quortex-assets/infra_aws_002.jpg
 
   [email]: mailto:info@quortex.io
 

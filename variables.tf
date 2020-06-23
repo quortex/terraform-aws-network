@@ -43,17 +43,24 @@ variable "route_table_name" {
   default     = "quortex"
 }
 
+variable "nat_gw_name" {
+  type        = string
+  description = "Name for the NAT gateway resource"
+  default     = "quortex"
+}
+
+variable "eip_name" {
+  type        = string
+  description = "Name for the Elastic IP resource"
+  default     = "quortex"
+}
+
 variable "region" {
   type        = string
   description = "The AWS region in wich to create network regional resources (subnet, router, nat...)."
 }
 
-variable "availability_zones" {
-  type        = list(string)
-  description = "The list of availability zones (AZ) for the subnets. Amazon EKS requires subnets in at least two Availability Zones"
-}
-
-variable "cidr_block" {
+variable "vpc_cidr_block" {
   type        = string
   description = "The CIDR block for the VPC"
   default     = "10.0.0.0/16"
@@ -61,12 +68,22 @@ variable "cidr_block" {
 
 variable "subnet_newbits" {
   type        = number
-  description = "The number of bits to add to the VPC CIDR block for obtaining the subnet CIDR blocks"
-  default     = 8
+  description = "The number of bits to add to the VPC CIDR block for obtaining the subnet CIDR blocks. Used when subnets cidr are not specified."
+  default     = 4
+}
+
+variable "subnets_private" {
+  type        = list(object({ availability_zone = string, cidr = string }))
+  description = "A list representing the subnets that must be created for the master. Each item must specify the subnet's availability zone and cidr block. The cidr block can empty, in this case the subnet will be computed based on the VPC range, the index in the array, using 4 bits (or as defined by subnet_newbits) for the subnet number, thus allowing 16 subnets. Amazon EKS requires at least 2 subnets in different Availability Zones"
+}
+
+variable "subnets_public" {
+  type        = list(object({ availability_zone = string, cidr = string }))
+  description = "A list representing the subnets that must be created. Each item must specify the subnet's availability zone and cidr block. The cidr block can empty, in this case the subnet will be computed based on the VPC range, the index in the array, using 4 bits (or as defined by subnet_newbits) for the subnet number, thus allowing 16 subnets."
 }
 
 variable "vpc_peering_routes" {
-  type        = list(object({ cidr_block=string, vpc_peering_connection_id=string }))
+  type        = list(object({ cidr_block = string, vpc_peering_connection_id = string }))
   description = "Additional routes to add, for directing traffic to peered VPC."
   default     = []
 }
@@ -75,4 +92,16 @@ variable "tags" {
   type        = map
   description = "The tags (a map of key/value pairs) to be applied to created resources."
   default     = {}
+}
+
+variable "enable_nat_gateway" {
+  type        = bool
+  description = "Set to true if a NAT Gateway and Elastic IP should be created"
+  default     = false
+}
+
+variable "single_nat_gateway" {
+  type        = bool
+  description = "Set to true if a common NAT Gateway should be used for all subnets"
+  default     = true
 }
