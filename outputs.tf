@@ -59,7 +59,12 @@ output "route_table_ids_private" {
   description = "The IDs of the route tables for private subnets"
 }
 
-output "nat_eip" {
-  value       = aws_eip.quortex.id
-  description = "The static Elastic IP created for Quortex cluster External NAT Gateway IP."
+output "nat_eip_id" {
+  value       = var.enable_nat_gateway ?  (var.nat_eip_allocation_id == "" ? aws_eip.quortex[0].id : var.nat_eip_allocation_id ) : ""
+  description = "The ID of the Elastic IP associated to the Quortex cluster External NAT Gateway IP."
+}
+
+output "nat_eip_address" {
+  value       = var.enable_nat_gateway ?  (var.nat_eip_allocation_id == "" ? aws_eip.quortex[0].public_ip : data.aws_eip.existing_eip[0].public_ip ) : ""
+  description = "The public address of the Elastic IP associated to the Quortex cluster External NAT Gateway IP."
 }
