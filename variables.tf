@@ -105,3 +105,9 @@ variable "single_nat_gateway" {
   description = "Set to true if a common NAT Gateway should be used for all subnets"
   default     = true
 }
+
+variable "nat_eip_allocation_id" {
+  type        = string
+  description = "Allocation ID of an existing EIP that should be associated to the NAT gateway. Specify this ID if you want to associate an existing EIP to the NAT gateway. If not specified, a new EIP will be created and associated to the NAT gateway."
+  default     = ""
+}
