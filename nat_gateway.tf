@@ -16,10 +16,21 @@
 
 
 # A static Elastic IP used for Quortex cluster External NAT Gateway IP.
+# This resource is created only if no existing EIP is specified.
 resource "aws_eip" "quortex" {
+  count = var.enable_nat_gateway && (var.nat_eip_allocation_id == "") ? 1 : 0
+
   vpc   = true
 
   tags = merge(map("Name", "${var.eip_name}",),var.tags)
+}
+
+# An existing Elastic IP that will be attached to the NAT gateway
+# This datasource is used only to display the IP address
+data "aws_eip" "existing_eip" {
+  count = var.enable_nat_gateway && (var.nat_eip_allocation_id != "") ? 1 : 0
+  
+  id = var.nat_eip_allocation_id
 }
 
 # A single NAT gateway is used for all subnets (NAT gateway is placed in the 1st subnet),
@@ -27,7 +38,7 @@ resource "aws_eip" "quortex" {
 resource "aws_nat_gateway" "quortex" {
   count = var.enable_nat_gateway ? (var.single_nat_gateway ? 1 : length(aws_subnet.quortex_public)) : 0
 
-  allocation_id = aws_eip.quortex.id # can a single EIP be associated to more than 1 NAT gateway ?
+  allocation_id = var.nat_eip_allocation_id == "" ? aws_eip.quortex[0].id : data.aws_eip.existing_eip[0].id
   subnet_id     = aws_subnet.quortex_public[count.index].id
 
   tags = merge(map("Name", "${var.nat_gw_name}-wk${count.index}",),var.tags)

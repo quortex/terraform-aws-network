@@ -25,7 +25,7 @@ This module creates the following resources in AWS:
 
 In addition, if NAT gateway is enabled:
 
-- an Elastic IP
+- an Elastic IP (optional)
 - a NAT gateway in one of the public subnets
 
 ## Usage example
@@ -59,6 +59,7 @@ module "network" {
     }
   ]
   enable_nat_gateway = true
+  nat_eip_allocation_id = "" # set an existing EIP's id, or an empty string to create a new EIP
 }
 
 ```
