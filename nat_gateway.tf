@@ -22,7 +22,7 @@ resource "aws_eip" "quortex" {
 
   vpc   = true
 
-  tags = merge(map("Name", "${var.eip_name}",),var.tags)
+  tags = merge(map("Name", var.eip_name,),var.tags)
 }
 
 # An existing Elastic IP that will be attached to the NAT gateway

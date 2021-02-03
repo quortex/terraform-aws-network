@@ -24,7 +24,7 @@ resource "aws_vpc" "quortex" {
 
   tags = merge(
     map(
-      "Name", "${var.vpc_name}",
+      "Name", var.vpc_name,
       "kubernetes.io/cluster/${var.cluster_name}", "shared", # tagged so that Kubernetes can discover it
     ),
     var.tags
@@ -77,7 +77,7 @@ resource "aws_internet_gateway" "quortex" {
   vpc_id = aws_vpc.quortex.id
 
   tags = merge({
-    Name = "${var.gateway_name}",
+    Name = var.gateway_name,
     },
     var.tags
   )
@@ -105,7 +105,7 @@ resource "aws_route_table" "quortex_public" {
   }
 
   tags = merge({
-    Name = "${var.route_table_name}",
+    Name = var.route_table_name,
     },
     var.tags
   )
@@ -147,7 +147,7 @@ resource "aws_route_table" "quortex_private" {
   }
 
   tags = merge({
-    Name = "${var.route_table_name}",
+    Name = var.route_table_name,
     },
     var.tags
   )
