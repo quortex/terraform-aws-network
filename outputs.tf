@@ -14,11 +14,6 @@
  * limitations under the License.
 */
 
-output "region" {
-  value       = var.region
-  description = "The region in wich regional resources resides (subnet, router, nat...)."
-}
-
 output "public_subnet_ids" {
   value       = aws_subnet.quortex_public[*].id
   description = "The IDs of the public subnets"
@@ -60,11 +55,11 @@ output "route_table_ids_private" {
 }
 
 output "nat_eip_id" {
-  value       = var.enable_nat_gateway ?  (var.nat_eip_allocation_id == "" ? aws_eip.quortex[0].id : var.nat_eip_allocation_id ) : ""
+  value       = var.enable_nat_gateway ? (var.nat_eip_allocation_id == "" ? aws_eip.quortex[0].id : var.nat_eip_allocation_id) : ""
   description = "The ID of the Elastic IP associated to the Quortex cluster External NAT Gateway IP."
 }
 
 output "nat_eip_address" {
-  value       = var.enable_nat_gateway ?  (var.nat_eip_allocation_id == "" ? aws_eip.quortex[0].public_ip : data.aws_eip.existing_eip[0].public_ip ) : ""
+  value       = var.enable_nat_gateway ? (var.nat_eip_allocation_id == "" ? aws_eip.quortex[0].public_ip : data.aws_eip.existing_eip[0].public_ip) : ""
   description = "The public address of the Elastic IP associated to the Quortex cluster External NAT Gateway IP."
 }
