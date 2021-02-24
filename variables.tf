@@ -55,11 +55,6 @@ variable "eip_name" {
   default     = "quortex"
 }
 
-variable "region" {
-  type        = string
-  description = "The AWS region in wich to create network regional resources (subnet, router, nat...)."
-}
-
 variable "vpc_cidr_block" {
   type        = string
   description = "The CIDR block for the VPC"
@@ -89,7 +84,7 @@ variable "vpc_peering_routes" {
 }
 
 variable "tags" {
-  type        = map
+  type        = map(any)
   description = "The tags (a map of key/value pairs) to be applied to created resources."
   default     = {}
 }

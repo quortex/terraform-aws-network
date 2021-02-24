@@ -34,7 +34,6 @@ In addition, if NAT gateway is enabled:
 module "network" {
   source = "quortex/network/aws"
 
-  region             = "eu-west-3"
   name               = "quortexcluster"
   vpc_cidr_block     = "10.0.0.0/16"
   subnet_newbits     = 8
