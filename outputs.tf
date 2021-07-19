@@ -15,22 +15,22 @@
 */
 
 output "public_subnet_ids" {
-  value       = aws_subnet.quortex_public[*].id
+  value       = try(aws_subnet.quortex_public[*].id, [])
   description = "The IDs of the public subnets"
 }
 
 output "public_subnet_cidr_blocks" {
-  value       = aws_subnet.quortex_public[*].cidr_block
+  value       = try(aws_subnet.quortex_public[*].cidr_block, [])
   description = "The CIDR blocks of the public subnets"
 }
 
 output "private_subnet_ids" {
-  value       = aws_subnet.quortex_private[*].id
+  value       = try(aws_subnet.quortex_private[*].id, [])
   description = "The IDs of the private subnets"
 }
 
 output "private_subnet_cidr_blocks" {
-  value       = aws_subnet.quortex_private[*].cidr_block
+  value       = try(aws_subnet.quortex_private[*].cidr_block, [])
   description = "The CIDR blocks of the private subnets"
 }
 
@@ -45,12 +45,12 @@ output "vpc_cidr_block" {
 }
 
 output "route_table_ids_public" {
-  value       = aws_route_table.quortex_public.*.id
+  value       = try(aws_route_table.quortex_public.*.id, [])
   description = "The IDs of the route tables for public subnets"
 }
 
 output "route_table_ids_private" {
-  value       = aws_route_table.quortex_private.*.id
+  value       = try(aws_route_table.quortex_private.*.id, [])
   description = "The IDs of the route tables for private subnets"
 }
 
