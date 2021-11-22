@@ -23,10 +23,10 @@ resource "aws_vpc" "quortex" {
   enable_dns_hostnames = true # required for using the cluster's private endpoint
 
   tags = merge(
-    map(
-      "Name", var.vpc_name,
-      "kubernetes.io/cluster/${var.cluster_name}", "shared", # tagged so that Kubernetes can discover it
-    ),
+    {
+      "Name"                                      = var.vpc_name,
+      "kubernetes.io/cluster/${var.cluster_name}" = "shared", # tagged so that Kubernetes can discover it
+    },
     var.tags
   )
   # NOTE: The usage of the specific kubernetes.io/cluster/* resource tags below are required for EKS and Kubernetes to discover and manage networking resources.
@@ -43,12 +43,12 @@ resource "aws_subnet" "quortex_public" {
   map_public_ip_on_launch = true
 
   tags = merge(
-    map(
-      "Name", "${var.subnet_name_prefix}pub-az${count.index}",
-      "Public", "true",
-      "kubernetes.io/cluster/${var.cluster_name}", "shared",
-      "kubernetes.io/role/elb", "1" # tagged so that Kubernetes knows to use only those subnets for external load balancers
-    ),
+    {
+      "Name"                                      = "${var.subnet_name_prefix}pub-az${count.index}",
+      "Public"                                    = "true",
+      "kubernetes.io/cluster/${var.cluster_name}" = "shared",
+      "kubernetes.io/role/elb"                    = "1" # tagged so that Kubernetes knows to use only those subnets for external load balancers
+    },
     var.tags
   )
 }
@@ -62,12 +62,12 @@ resource "aws_subnet" "quortex_private" {
   vpc_id            = aws_vpc.quortex.id
 
   tags = merge(
-    map(
-      "Name", "${var.subnet_name_prefix}priv-az${count.index}",
-      "Public", "true",
-      "kubernetes.io/cluster/${var.cluster_name}", "shared",
-      "kubernetes.io/role/internal-elb", "1"
-    ),
+    {
+      "Name"                                      = "${var.subnet_name_prefix}priv-az${count.index}",
+      "Public"                                    = "true",
+      "kubernetes.io/cluster/${var.cluster_name}" = "shared",
+      "kubernetes.io/role/internal-elb"           = "1"
+    },
     var.tags
   )
 }
