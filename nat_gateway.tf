@@ -22,7 +22,7 @@ resource "aws_eip" "quortex" {
 
   vpc = true
 
-  tags = merge(map("Name", var.eip_name, ), var.tags)
+  tags = merge({ "Name" = var.eip_name }, var.tags)
 }
 
 # An existing Elastic IP that will be attached to the NAT gateway
@@ -41,7 +41,7 @@ resource "aws_nat_gateway" "quortex" {
   allocation_id = var.nat_eip_allocation_id == "" ? aws_eip.quortex[0].id : data.aws_eip.existing_eip[0].id
   subnet_id     = aws_subnet.quortex_public[count.index].id
 
-  tags = merge(map("Name", "${var.nat_gw_name}-wk${count.index}", ), var.tags)
+  tags = merge({ "Name" = "${var.nat_gw_name}-wk${count.index}" }, var.tags)
 
   depends_on = [aws_internet_gateway.quortex]
 }
