@@ -104,6 +104,15 @@ resource "aws_route_table" "quortex_public" {
     }
   }
 
+  # Additional route(s) to a VPC internet gateway or a virtual private gateway.
+  dynamic "route" {
+    for_each = var.gateway_routes
+    content {
+      cidr_block = route.value.cidr_block
+      gateway_id = route.value.gateway_id
+    }
+  }
+
   tags = merge({
     Name = var.route_table_name,
     },
@@ -143,6 +152,15 @@ resource "aws_route_table" "quortex_private" {
     content {
       cidr_block                = route.value.cidr_block
       vpc_peering_connection_id = route.value.vpc_peering_connection_id
+    }
+  }
+
+  # Additional route(s) to a VPC internet gateway or a virtual private gateway.
+  dynamic "route" {
+    for_each = var.gateway_routes
+    content {
+      cidr_block = route.value.cidr_block
+      gateway_id = route.value.gateway_id
     }
   }
 
