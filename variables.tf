@@ -78,13 +78,13 @@ variable "subnets_public" {
 }
 
 variable "vpc_peering_routes" {
-  type        = list(object({ cidr_block = string, gateway_id = string }))
+  type        = list(object({ cidr_block = string, vpc_peering_connection_id = string }))
   description = "Additional routes to add, for directing traffic to a VPC internet gateway or a virtual private gateway."
   default     = []
 }
 
 variable "gateway_routes" {
-  type        = list(object({ cidr_block = string, vpc_peering_connection_id = string }))
+  type        = list(object({ cidr_block = string, gateway_id = string }))
   description = "Additional routes to add, for directing traffic to peered VPC."
   default     = []
 }
