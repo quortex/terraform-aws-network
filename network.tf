@@ -32,41 +32,24 @@ resource "aws_vpc" "quortex" {
   # NOTE: The usage of the specific kubernetes.io/cluster/* resource tags below are required for EKS and Kubernetes to discover and manage networking resources.
 }
 
-# Subnets - public
-resource "aws_subnet" "quortex_public" {
-  count = length(var.subnets_public)
+resource "aws_subnet" "quortex" {
+  for_each = var.subnets
 
-  availability_zone = var.subnets_public[count.index].availability_zone
-  cidr_block        = var.subnets_public[count.index].cidr != "" ? var.subnets_public[count.index].cidr : cidrsubnet(var.vpc_cidr_block, var.subnet_newbits, count.index)
-  vpc_id            = aws_vpc.quortex.id
-
-  map_public_ip_on_launch = true
+  vpc_id                  = aws_vpc.quortex.id
+  availability_zone       = each.value.availability_zone
+  cidr_block              = each.value.cidr
+  map_public_ip_on_launch = each.value.public
 
   tags = merge(
     {
-      "Name"                                      = "${var.subnet_name_prefix}pub-az${count.index}",
+      "Name"                                      = "${var.subnet_name_prefix}${each.key}",
       "Public"                                    = "true",
       "kubernetes.io/cluster/${var.cluster_name}" = "shared",
-      "kubernetes.io/role/elb"                    = "1" # tagged so that Kubernetes knows to use only those subnets for external load balancers
     },
-    var.tags
-  )
-}
-
-# Subnets - private
-resource "aws_subnet" "quortex_private" {
-  count = length(var.subnets_private)
-
-  availability_zone = var.subnets_private[count.index].availability_zone
-  cidr_block        = var.subnets_private[count.index].cidr != "" ? var.subnets_private[count.index].cidr : cidrsubnet(var.vpc_cidr_block, var.subnet_newbits, length(var.subnets_public) + count.index)
-  vpc_id            = aws_vpc.quortex.id
-
-  tags = merge(
-    {
-      "Name"                                      = "${var.subnet_name_prefix}priv-az${count.index}",
-      "Public"                                    = "true",
-      "kubernetes.io/cluster/${var.cluster_name}" = "shared",
-      "kubernetes.io/role/internal-elb"           = "1"
+    each.value.public ? {
+      "kubernetes.io/role/elb" = "1" # tagged so that Kubernetes knows to use only those subnets for external load balancers
+      } : {
+      "kubernetes.io/role/internal-elb" = "1"
     },
     var.tags
   )
@@ -77,7 +60,7 @@ resource "aws_internet_gateway" "quortex" {
   vpc_id = aws_vpc.quortex.id
 
   tags = merge({
-    Name = var.gateway_name,
+    Name = var.internet_gateway_name,
     },
     var.tags
   )
@@ -85,7 +68,7 @@ resource "aws_internet_gateway" "quortex" {
 
 # Route table for public subnets
 resource "aws_route_table" "quortex_public" {
-  count = length(aws_subnet.quortex_public)
+  for_each = local.public_subnets
 
   vpc_id = aws_vpc.quortex.id
 
@@ -113,32 +96,28 @@ resource "aws_route_table" "quortex_public" {
     }
   }
 
-  tags = merge({
-    Name = var.route_table_name,
-    },
-    var.tags
-  )
+  tags = merge({ "Name" = "${var.route_table_prefix}${each.key}" }, var.tags)
 }
 
 # Route table for private subnets
 resource "aws_route_table" "quortex_private" {
-  count = length(aws_subnet.quortex_private)
+  for_each = local.private_subnets
 
   vpc_id = aws_vpc.quortex.id
 
   # Route to the NAT, if NAT is enabled...
   dynamic "route" {
-    for_each = var.enable_nat_gateway ? [1] : []
+    for_each = local.enable_nat_gateway ? [1] : []
 
     content {
       cidr_block     = "0.0.0.0/0"
-      nat_gateway_id = aws_nat_gateway.quortex[var.single_nat_gateway ? 0 : count.index].id
+      nat_gateway_id = aws_nat_gateway.quortex.0.id
     }
   }
 
   # ...otherwise, route to the Internet Gateway
   dynamic "route" {
-    for_each = var.enable_nat_gateway ? [] : [1]
+    for_each = local.enable_nat_gateway ? [] : [1]
 
     content {
       cidr_block = "0.0.0.0/0"
@@ -164,29 +143,25 @@ resource "aws_route_table" "quortex_private" {
     }
   }
 
-  tags = merge({
-    Name = var.route_table_name,
-    },
-    var.tags
-  )
+  tags = merge({ "Name" = "${var.route_table_prefix}${each.key}" }, var.tags)
 }
 
 
 # Route table association
 
 resource "aws_route_table_association" "quortex_public" {
-  count = length(aws_subnet.quortex_public)
+  for_each = local.public_subnets
 
-  subnet_id      = aws_subnet.quortex_public.*.id[count.index]
-  route_table_id = aws_route_table.quortex_public[count.index].id
+  subnet_id      = aws_subnet.quortex[each.key].id
+  route_table_id = aws_route_table.quortex_public[each.key].id
 }
 
 
 resource "aws_route_table_association" "quortex_private" {
-  count = length(aws_subnet.quortex_private)
+  for_each = local.private_subnets
 
-  subnet_id      = aws_subnet.quortex_private.*.id[count.index]
-  route_table_id = aws_route_table.quortex_private[count.index].id
+  subnet_id      = aws_subnet.quortex[each.key].id
+  route_table_id = aws_route_table.quortex_private[each.key].id
 }
 
 

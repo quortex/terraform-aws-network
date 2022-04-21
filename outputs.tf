@@ -14,26 +14,6 @@
  * limitations under the License.
 */
 
-output "public_subnet_ids" {
-  value       = aws_subnet.quortex_public[*].id
-  description = "The IDs of the public subnets"
-}
-
-output "public_subnet_cidr_blocks" {
-  value       = aws_subnet.quortex_public[*].cidr_block
-  description = "The CIDR blocks of the public subnets"
-}
-
-output "private_subnet_ids" {
-  value       = aws_subnet.quortex_private[*].id
-  description = "The IDs of the private subnets"
-}
-
-output "private_subnet_cidr_blocks" {
-  value       = aws_subnet.quortex_private[*].cidr_block
-  description = "The CIDR blocks of the private subnets"
-}
-
 output "vpc_id" {
   value       = aws_vpc.quortex.id
   description = "The ID of the VPC"
@@ -44,22 +24,38 @@ output "vpc_cidr_block" {
   description = "The CIDR block of the VPC"
 }
 
+output "subnets" {
+  value = { for k, v in aws_subnet.quortex : k =>
+    {
+      id                = v.id,
+      availability_zone = v.availability_zone,
+      public            = v.map_public_ip_on_launch,
+      cidr              = v.cidr_block,
+    }
+  }
+  description = <<EOT
+A map representing the subnets that has been created. The keys match those
+passed in the subnets variable, each item contains the subnet's ID,
+Availability Zone, cidr block, and whether the subnet is public or not.
+EOT
+}
+
 output "route_table_ids_public" {
-  value       = aws_route_table.quortex_public.*.id
+  value       = values(aws_route_table.quortex_public).*.id
   description = "The IDs of the route tables for public subnets"
 }
 
 output "route_table_ids_private" {
-  value       = aws_route_table.quortex_private.*.id
+  value       = values(aws_route_table.quortex_private).*.id
   description = "The IDs of the route tables for private subnets"
 }
 
 output "nat_eip_id" {
-  value       = try(var.enable_nat_gateway ? (var.nat_eip_allocation_id == "" ? aws_eip.quortex[0].id : var.nat_eip_allocation_id) : "", "")
+  value       = try(local.enable_nat_gateway ? (var.nat_eip_allocation_id == "" ? aws_eip.quortex[0].id : var.nat_eip_allocation_id) : "", "")
   description = "The ID of the Elastic IP associated to the Quortex cluster External NAT Gateway IP."
 }
 
 output "nat_eip_address" {
-  value       = try(var.enable_nat_gateway ? (var.nat_eip_allocation_id == "" ? aws_eip.quortex[0].public_ip : data.aws_eip.existing_eip[0].public_ip) : "", "")
+  value       = try(local.enable_nat_gateway ? (var.nat_eip_allocation_id == "" ? aws_eip.quortex[0].public_ip : data.aws_eip.existing_eip[0].public_ip) : "", "")
   description = "The public address of the Elastic IP associated to the Quortex cluster External NAT Gateway IP."
 }

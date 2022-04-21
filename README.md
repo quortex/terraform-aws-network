@@ -36,28 +36,32 @@ module "network" {
 
   name               = "quortexcluster"
   vpc_cidr_block     = "10.0.0.0/16"
-  subnet_newbits     = 8
-  subnets_public = [
-    {
-      availability_zone = "eu-west-3b"
-      cidr              = "" # let the module define the subnets CIDR
-    },
-    {
-      availability_zone = "eu-west-3c"
-      cidr              = ""
+  subnets = {
+    pub-eu-west-1b = {
+      availability_zone = "eu-west-1b"
+      cidr              = "10.100.64.0/22"
+      public            = true
     }
-  ]
-  subnets_private = [
-    {
-      availability_zone = "eu-west-3b"
-      cidr              = ""
-    },
-    {
-      availability_zone = "eu-west-3c"
-      cidr              = ""
+    pub-eu-west-1c = {
+      availability_zone = "eu-west-1c"
+      cidr              = "10.100.68.0/22"
+      public            = true
     }
-  ]
-  enable_nat_gateway = true
+    priv-eu-west-1b = {
+      availability_zone = "eu-west-1b"
+      cidr              = "10.100.96.0/19"
+      public            = false
+    }
+    priv-eu-west-1c = {
+      availability_zone = "eu-west-1c"
+      cidr              = "10.100.128.0/19"
+      public            = false
+    }
+  }
+  nat_gateway = {
+    name       = "quortex"
+    subnet_key = "pub-eu-west-1b"
+  }
   nat_eip_allocation_id = "" # set an existing EIP's id, or an empty string to create a new EIP
 }
 
