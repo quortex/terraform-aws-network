@@ -33,7 +33,7 @@ variable "subnet_name_prefix" {
 
 variable "internet_gateway_name" {
   type        = string
-  description = "Name for the internent gateway resource."
+  description = "Name for the internet gateway resource."
   default     = "quortex"
 }
 
