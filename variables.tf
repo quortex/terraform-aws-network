@@ -31,22 +31,25 @@ variable "subnet_name_prefix" {
   default     = "quortex-"
 }
 
-variable "gateway_name" {
+variable "internet_gateway_name" {
   type        = string
-  description = "Name for the gateway resource"
+  description = "Name for the internet gateway resource."
   default     = "quortex"
 }
 
-variable "route_table_name" {
+variable "route_table_prefix" {
   type        = string
-  description = "Name for the route table resource"
-  default     = "quortex"
+  description = "A prefix for the name of route tables."
+  default     = "quortex-"
 }
 
-variable "nat_gw_name" {
-  type        = string
-  description = "Name for the NAT gateway resource"
-  default     = "quortex"
+variable "nat_gateway" {
+  type        = object({ name = string, subnet_key = string })
+  description = <<EOT
+The NAT gateway configuration, a name and a subnet_key that must match a key
+of the given subnets variable.
+EOT
+  default     = null
 }
 
 variable "eip_name" {
@@ -61,20 +64,13 @@ variable "vpc_cidr_block" {
   default     = "10.0.0.0/16"
 }
 
-variable "subnet_newbits" {
-  type        = number
-  description = "The number of bits to add to the VPC CIDR block for obtaining the subnet CIDR blocks. Used when subnets cidr are not specified."
-  default     = 4
-}
-
-variable "subnets_private" {
-  type        = list(object({ availability_zone = string, cidr = string }))
-  description = "A list representing the subnets that must be created for the master. Each item must specify the subnet's availability zone and cidr block. The cidr block can empty, in this case the subnet will be computed based on the VPC range, the index in the array, using 4 bits (or as defined by subnet_newbits) for the subnet number, thus allowing 16 subnets. Amazon EKS requires at least 2 subnets in different Availability Zones"
-}
-
-variable "subnets_public" {
-  type        = list(object({ availability_zone = string, cidr = string }))
-  description = "A list representing the subnets that must be created. Each item must specify the subnet's availability zone and cidr block. The cidr block can empty, in this case the subnet will be computed based on the VPC range, the index in the array, using 4 bits (or as defined by subnet_newbits) for the subnet number, thus allowing 16 subnets."
+variable "subnets" {
+  type        = map(object({ availability_zone = string, cidr = string, public = bool }))
+  description = <<EOT
+A map representing the subnets that need to be created. Each item should
+specify the subnet's Availability Zone, cidr block, and whether the subnet
+should be public or not.
+EOT
 }
 
 variable "vpc_peering_routes" {
@@ -93,18 +89,6 @@ variable "tags" {
   type        = map(any)
   description = "The tags (a map of key/value pairs) to be applied to created resources."
   default     = {}
-}
-
-variable "enable_nat_gateway" {
-  type        = bool
-  description = "Set to true if a NAT Gateway and Elastic IP should be created"
-  default     = false
-}
-
-variable "single_nat_gateway" {
-  type        = bool
-  description = "Set to true if a common NAT Gateway should be used for all subnets"
-  default     = true
 }
 
 variable "nat_eip_allocation_id" {
