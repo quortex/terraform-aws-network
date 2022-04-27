@@ -21,7 +21,7 @@ variable "vpc_name" {
 }
 
 variable "vpc_secondary_cidrs" {
-  type        = list(string)
+  type        = set(string)
   description = "IPv4 secondary CIDRs to add to the VPC."
   default     = []
 }
