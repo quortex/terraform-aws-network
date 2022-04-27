@@ -20,6 +20,12 @@ variable "vpc_name" {
   default     = "quortex"
 }
 
+variable "vpc_secondary_cidrs" {
+  type        = list(string)
+  description = "IPv4 secondary CIDRs to add to the VPC."
+  default     = []
+}
+
 variable "cluster_name" {
   type        = string
   description = "The name of the EKS cluster. Will be used to set the kubernetes.io/cluster/<cluster-name> tag on the VPC and subnets. It is required for Kubernetes to discover them."
