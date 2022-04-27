@@ -32,6 +32,12 @@ resource "aws_vpc" "quortex" {
   # NOTE: The usage of the specific kubernetes.io/cluster/* resource tags below are required for EKS and Kubernetes to discover and manage networking resources.
 }
 
+resource "aws_vpc_ipv4_cidr_block_association" "secondary" {
+  for_each   = var.vpc_secondary_cidrs
+  vpc_id     = aws_vpc.quortex.id
+  cidr_block = each.value
+}
+
 resource "aws_subnet" "quortex" {
   for_each = var.subnets
 
