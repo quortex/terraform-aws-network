@@ -32,6 +32,11 @@ resource "aws_vpc" "quortex" {
   # NOTE: The usage of the specific kubernetes.io/cluster/* resource tags below are required for EKS and Kubernetes to discover and manage networking resources.
 }
 
+# Remove all rules on default security group to be compliant with https://docs.aws.amazon.com/securityhub/latest/userguide/securityhub-standards-fsbp-controls.html#fsbp-ec2-2
+resource "aws_default_security_group" "quortex" {
+  vpc_id = aws_vpc.quortex.id
+}
+
 resource "aws_vpc_ipv4_cidr_block_association" "secondary" {
   for_each   = var.vpc_secondary_cidrs
   vpc_id     = aws_vpc.quortex.id
@@ -171,5 +176,3 @@ resource "aws_route_table_association" "quortex_private" {
   subnet_id      = aws_subnet.quortex[each.key].id
   route_table_id = aws_route_table.quortex_private[each.key].id
 }
-
-
