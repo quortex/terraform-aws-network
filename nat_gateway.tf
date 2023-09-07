@@ -32,7 +32,7 @@ data "aws_eip" "existing_eip" {
 }
 
 # A single NAT gateway is used for all subnets (NAT gateway is placed in the 1st subnet),
-# or, one NAT gateway in each subnet 
+# or, one NAT gateway in each subnet
 resource "aws_nat_gateway" "quortex" {
   count = local.enable_nat_gateway ? 1 : 0
 
