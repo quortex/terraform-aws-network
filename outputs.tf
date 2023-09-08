@@ -41,12 +41,12 @@ EOT
 }
 
 output "route_table_ids_public" {
-  value       = values(aws_route_table.quortex_public).*.id
+  value       = values(aws_route_table.quortex_public)[*].id
   description = "The IDs of the route tables for public subnets"
 }
 
 output "route_table_ids_private" {
-  value       = values(aws_route_table.quortex_private).*.id
+  value       = values(aws_route_table.quortex_private)[*].id
   description = "The IDs of the route tables for private subnets"
 }
 

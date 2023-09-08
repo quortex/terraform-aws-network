@@ -20,8 +20,6 @@
 resource "aws_eip" "quortex" {
   count = (local.enable_nat_gateway && var.nat_eip_allocation_id == "") ? 1 : 0
 
-  vpc = true
-
   tags = merge({ "Name" = var.eip_name }, var.tags)
 }
 
@@ -34,7 +32,7 @@ data "aws_eip" "existing_eip" {
 }
 
 # A single NAT gateway is used for all subnets (NAT gateway is placed in the 1st subnet),
-# or, one NAT gateway in each subnet 
+# or, one NAT gateway in each subnet
 resource "aws_nat_gateway" "quortex" {
   count = local.enable_nat_gateway ? 1 : 0
 
