@@ -16,30 +16,31 @@
 
 
 # A static Elastic IP used for Quortex cluster External NAT Gateway IP.
-# This resource is created only if no existing EIP is specified.
+# This resource is created for each nat gateway where no existing EIP is specified.
 resource "aws_eip" "quortex" {
-  count = (local.enable_nat_gateway && var.nat_eip_allocation_id == "") ? 1 : 0
+  for_each = { for k, v in var.nat_gateways : k => v if v.eip_allocation_id == null }
 
-  tags = merge({ "Name" = var.eip_name }, var.tags)
+  tags = merge({ "Name" = "${var.nat_gateway_name_prefix}${each.key}" }, var.tags)
 }
 
-# An existing Elastic IP that will be attached to the NAT gateway
-# This datasource is used only to display the IP address
+# An existing Elastic IP that will be attached to NAT gateways when
+# the id is defined. This datasource is used only to display the IP address
 data "aws_eip" "existing_eip" {
-  count = (local.enable_nat_gateway && var.nat_eip_allocation_id != "") ? 1 : 0
+  for_each = { for k, v in var.nat_gateways : k => v if v.eip_allocation_id != null }
 
-  id = var.nat_eip_allocation_id
+  id = each.value.eip_allocation_id
 }
 
-# A single NAT gateway is used for all subnets (NAT gateway is placed in the 1st subnet),
-# or, one NAT gateway in each subnet
+# Nat gateways depending on the list passed in the nat_gateways variable
 resource "aws_nat_gateway" "quortex" {
-  count = local.enable_nat_gateway ? 1 : 0
+  for_each = { for k, v in var.nat_gateways : k => v if local.public_subnets[v.subnet_key] != null }
 
-  allocation_id = var.nat_eip_allocation_id == "" ? aws_eip.quortex[0].id : data.aws_eip.existing_eip[0].id
-  subnet_id     = aws_subnet.quortex[var.nat_gateway.subnet_key].id
+  allocation_id = each.value.eip_allocation_id == null ? aws_eip.quortex[each.key].id : data.aws_eip.existing_eip[each.key].id
+  subnet_id     = local.public_subnets[each.value.subnet_key].id
 
-  tags = merge({ "Name" = var.nat_gateway.name }, var.tags)
+  tags = merge({
+    "Name" = "${var.nat_gateway_name_prefix}${each.key}"
+  }, var.tags)
 
   depends_on = [aws_internet_gateway.quortex]
 }

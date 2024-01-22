@@ -50,12 +50,12 @@ output "route_table_ids_private" {
   description = "The IDs of the route tables for private subnets"
 }
 
-output "nat_eip_id" {
-  value       = try(local.enable_nat_gateway ? (var.nat_eip_allocation_id == "" ? aws_eip.quortex[0].id : var.nat_eip_allocation_id) : "", "")
-  description = "The ID of the Elastic IP associated to the Quortex cluster External NAT Gateway IP."
+output "nat_eip_ids" {
+  value       = concat(values(aws_eip.quortex)[*].allocation_id, [for k, v in var.nat_gateways : v.eip_allocation_id if v.eip_allocation_id != null])
+  description = "The IDs of the Elastic IPs associated to the Quortex cluster External NAT Gateways."
 }
 
-output "nat_eip_address" {
-  value       = try(local.enable_nat_gateway ? (var.nat_eip_allocation_id == "" ? aws_eip.quortex[0].public_ip : data.aws_eip.existing_eip[0].public_ip) : "", "")
-  description = "The public address of the Elastic IP associated to the Quortex cluster External NAT Gateway IP."
+output "nat_eip_addresses" {
+  value       = concat(values(aws_eip.quortex)[*].public_ip, values(data.aws_eip.existing_eip)[*].public_ip)
+  description = "The public addresses of the Elastic IP associated to the Quortex cluster External NAT Gateways."
 }

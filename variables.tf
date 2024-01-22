@@ -49,19 +49,19 @@ variable "route_table_prefix" {
   default     = "quortex-"
 }
 
-variable "nat_gateway" {
-  type        = object({ name = string, subnet_key = string })
-  description = <<EOT
-The NAT gateway configuration, a name and a subnet_key that must match a key
-of the given subnets variable.
-EOT
-  default     = null
+variable "nat_gateway_name_prefix" {
+  type        = string
+  description = "A prefix for the name of the NAT Gateways."
+  default     = "quortex-"
 }
 
-variable "eip_name" {
-  type        = string
-  description = "Name for the Elastic IP resource"
-  default     = "quortex"
+variable "nat_gateways" {
+  type        = map(object({ subnet_key = string, eip_allocation_id = string }))
+  description = <<EOT
+The NAT gateways configuration, a map of object, each with a subnet_key that must
+match a key of the given subnets variable and an optional eip allocation id.
+EOT
+  default     = null
 }
 
 variable "vpc_cidr_block" {
@@ -95,10 +95,4 @@ variable "tags" {
   type        = map(any)
   description = "The tags (a map of key/value pairs) to be applied to created resources."
   default     = {}
-}
-
-variable "nat_eip_allocation_id" {
-  type        = string
-  description = "Allocation ID of an existing EIP that should be associated to the NAT gateway. Specify this ID if you want to associate an existing EIP to the NAT gateway. If not specified, a new EIP will be created and associated to the NAT gateway."
-  default     = ""
 }
