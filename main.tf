@@ -120,17 +120,17 @@ resource "aws_route_table" "quortex_private" {
 
   # Route to the NAT, if NAT is enabled...
   dynamic "route" {
-    for_each = local.enable_nat_gateway ? [1] : []
+    for_each = local.zoned_gateway_ids[each.value.availability_zone] != null ? [1] : []
 
     content {
       cidr_block     = "0.0.0.0/0"
-      nat_gateway_id = aws_nat_gateway.quortex[0].id
+      nat_gateway_id = local.zoned_gateway_ids[each.value.availability_zone]
     }
   }
 
   # ...otherwise, route to the Internet Gateway
   dynamic "route" {
-    for_each = local.enable_nat_gateway ? [] : [1]
+    for_each = local.zoned_gateway_ids[each.value.availability_zone] == null ? [1] : []
 
     content {
       cidr_block = "0.0.0.0/0"

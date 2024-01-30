@@ -22,11 +22,11 @@ This module creates the following resources in AWS:
 - 2 or more private subnets in different AZ
 - an internet gateway
 - route tables
+- a NAT gateway in each public subnet
 
-In addition, if NAT gateway is enabled:
+In addition, if NAT gateways are not provided an EIP allocation id:
 
-- an Elastic IP (optional)
-- a NAT gateway in one of the public subnets
+- an Elastic IP for each such NAT gateway
 
 ## Usage example
 
@@ -59,10 +59,10 @@ module "network" {
     }
   }
   nat_gateway = {
-    name       = "quortex"
-    subnet_key = "pub-eu-west-1b"
+    quortex = {
+      subnet_key = "pub-eu-west-1b"
+    }
   }
-  nat_eip_allocation_id = "" # set an existing EIP's id, or an empty string to create a new EIP
 }
 
 ```
