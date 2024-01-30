@@ -56,7 +56,7 @@ variable "nat_gateway_name_prefix" {
 }
 
 variable "nat_gateways" {
-  type        = map(object({ subnet_key = string, eip_allocation_id = string }))
+  type        = map(object({ subnet_key = string, eip_allocation_id = optional(string) }))
   description = <<EOT
 The NAT gateways configuration, a map of object, each with a subnet_key that must
 match a key of the given subnets variable and an optional eip allocation id.
