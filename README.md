@@ -61,7 +61,6 @@ module "network" {
   nat_gateway = {
     quortex = {
       subnet_key = "pub-eu-west-1b"
-      eip_allocation_id = "" # set an existing EIP's id, or an empty string to create a new EIP
     }
   }
 }
