@@ -118,24 +118,15 @@ resource "aws_route_table" "quortex_private" {
 
   vpc_id = aws_vpc.quortex.id
 
-  # Route to the NAT, if NAT is enabled...
-  dynamic "route" {
-    for_each = local.zoned_gateway_ids[each.value.availability_zone] != null ? [1] : []
-
-    content {
-      cidr_block     = "0.0.0.0/0"
-      nat_gateway_id = local.zoned_gateway_ids[each.value.availability_zone]
-    }
-  }
-
-  # ...otherwise, route to the Internet Gateway
-  dynamic "route" {
-    for_each = local.zoned_gateway_ids[each.value.availability_zone] == null ? [1] : []
-
-    content {
-      cidr_block = "0.0.0.0/0"
-      gateway_id = aws_internet_gateway.quortex.id
-    }
+  route {
+    # Create default route depending on whether a NAT Gateway exists in
+    # this availability zone. Only one of nat_gateway_id and gateway_id will be
+    # non null
+    cidr_block = "0.0.0.0/0"
+    # Route to the NAT, if NAT gw exists in this az...
+    nat_gateway_id = lookup(local.zoned_gateway_ids, each.value.availability_zone, null)
+    # ...otherwise, route to the Internet Gateway
+    gateway_id = lookup(local.zoned_gateway_ids, each.value.availability_zone, null) != null ? null : aws_internet_gateway.quortex.id
   }
 
   # Additional route(s) to peered VPC
