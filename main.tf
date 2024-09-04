@@ -54,7 +54,7 @@ resource "aws_subnet" "quortex" {
   tags = merge(
     {
       "Name"                                      = "${var.subnet_name_prefix}${each.key}",
-      "Public"                                    = "true",
+      "Public"                                    = tostring(each.value.public),
       "kubernetes.io/cluster/${var.cluster_name}" = "shared",
     },
     each.value.public ? {
@@ -62,7 +62,8 @@ resource "aws_subnet" "quortex" {
       } : {
       "kubernetes.io/role/internal-elb" = "1"
     },
-    var.tags
+    var.tags,
+    each.value.tags
   )
 
   depends_on = [aws_vpc_ipv4_cidr_block_association.secondary]
