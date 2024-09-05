@@ -71,11 +71,11 @@ variable "vpc_cidr_block" {
 }
 
 variable "subnets" {
-  type        = map(object({ availability_zone = string, cidr = string, public = bool }))
+  type        = map(object({ availability_zone = string, cidr = string, public = bool, tags = optional(map(string), {}) }))
   description = <<EOT
 A map representing the subnets that need to be created. Each item should
-specify the subnet's Availability Zone, cidr block, and whether the subnet
-should be public or not.
+specify the subnet's Availability Zone, cidr block, whether the subnet
+should be public or not and optionally extra tags to add.
 EOT
 }
 
