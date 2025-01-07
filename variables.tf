@@ -94,7 +94,6 @@ variable "tags" {
 variable "vpc_secondary_cidr" {
   type        = string
   description = "IPv4 secondary CIDR to add to the VPC."
-  default     = "100.64.0.0/16"
 }
 
 variable "availability_zones" {
