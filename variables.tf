@@ -20,12 +20,6 @@ variable "vpc_name" {
   default     = "quortex"
 }
 
-variable "vpc_secondary_cidrs" {
-  type        = set(string)
-  description = "IPv4 secondary CIDRs to add to the VPC."
-  default     = []
-}
-
 variable "cluster_name" {
   type        = string
   description = "The name of the EKS cluster. Will be used to set the kubernetes.io/cluster/<cluster-name> tag on the VPC and subnets. It is required for Kubernetes to discover them."
@@ -71,10 +65,10 @@ variable "vpc_cidr_block" {
 }
 
 variable "subnets" {
-  type        = map(object({ availability_zone = string, cidr = string, public = bool, tags = optional(map(string), {}) }))
+  type        = map(object({ cidr = string, public = bool, tags = optional(map(string), {}) }))
   description = <<EOT
 A map representing the subnets that need to be created. Each item should
-specify the subnet's Availability Zone, cidr block, whether the subnet
+specify the subnet's cidr block, whether the subnet
 should be public or not and optionally extra tags to add.
 EOT
 }
@@ -95,4 +89,14 @@ variable "tags" {
   type        = map(any)
   description = "The tags (a map of key/value pairs) to be applied to created resources."
   default     = {}
+}
+
+variable "vpc_secondary_cidr" {
+  type        = string
+  description = "IPv4 secondary CIDR to add to the VPC."
+}
+
+variable "availability_zones" {
+  type        = list(string)
+  description = "The availability zones to use."
 }

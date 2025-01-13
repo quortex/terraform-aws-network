@@ -14,6 +14,16 @@
  * limitations under the License.
 */
 
+data "aws_region" "current" {}
+
+locals {
+  # Calculate newbits dynamically based on the number of availability zones
+  # 1 or 2 AZs, newbits = 1 (2 subnets needed).
+  # 3 or 4 AZs, newbits = 2 (4 subnets needed).
+  # 5 to 8 AZs, newbits = 3 (8 subnets needed).
+  # and so on...
+  newbits = ceil(log(length(var.availability_zones), 2))
+}
 
 # VPC
 resource "aws_vpc" "quortex" {
@@ -38,13 +48,22 @@ resource "aws_default_security_group" "quortex" {
 }
 
 resource "aws_vpc_ipv4_cidr_block_association" "secondary" {
-  for_each   = var.vpc_secondary_cidrs
+  for_each   = toset([for index, az in var.availability_zones : cidrsubnet(var.vpc_secondary_cidr, local.newbits, index)])
   vpc_id     = aws_vpc.quortex.id
   cidr_block = each.value
 }
 
 resource "aws_subnet" "quortex" {
-  for_each = var.subnets
+  for_each = merge([
+    for key, subnet in var.subnets : {
+      for index, az in var.availability_zones : "${key}-${data.aws_region.current.name}${az}" => {
+        "availability_zone" = "${data.aws_region.current.name}${az}",
+        "cidr"              = cidrsubnet(subnet.cidr, local.newbits, index),
+        "public"            = subnet.public,
+        "tags"              = subnet.tags,
+      }
+    }
+  ]...)
 
   vpc_id                  = aws_vpc.quortex.id
   availability_zone       = each.value.availability_zone
