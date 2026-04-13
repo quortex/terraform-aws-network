@@ -20,7 +20,7 @@
 resource "aws_eip" "quortex" {
   count = var.enable_nat_gateway && (var.nat_eip_allocation_id == "") ? 1 : 0
 
-  vpc = true
+  domain = "vpc"
 
   tags = merge({ "Name" = var.eip_name }, var.tags)
 }
